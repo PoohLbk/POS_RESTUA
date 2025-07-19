@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ระบบสั่งอาหาร</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 900px;
+      margin: auto;
+      background: #fffefb;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    h2 {
+      margin-top: 30px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 5px;
+    }
+
+
+    .item-card {
+      display: inline-block;
+      width: 160px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+      text-align: center;
+      background: #fff;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .item-card img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+    }
+
+    .item-info {
+      padding: 10px;
+    }
+
+    .item-info p {
+      margin: 5px 0;
+    }
+
+    .item-btn {
+      background: #f57c00;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .item-btn:hover {
+      background: #e65100;
+    }
+
+    #order-summary {
+      margin-top: 30px;
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    #order-summary ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍽 ระบบสั่งอาหาร</h1>
+  <div id="menu"></div>
+  <div id="order-summary">
+    <h2>🧾 รายการที่สั่ง</h2>
+    <ul id="order-list"></ul>
+    <p><strong>รวมทั้งหมด: <span id="total">0</span> บาท</strong></p>
+  </div>
+
+  <script>
+    const menu = {
+      '🥘 กับข้าว/ข้าวจานเดียว': [
+        { name: 'กระเพราหมูสับ/หมูชิ้น', price: 40, img: 'https://static.thairath.co.th/media/dFQROr7oWzulq5Fa5KwGLS70zEy4zJYkKxH4zR40aU0INmXH5VZCgNc0pxyrOe1F6YI.jpg' },
+        { name: 'ข้าวผัดหมู', price: 50, img: 'https://s359.kapook.com/pagebuilder/d0b8a629-aded-4ff0-b623-6511bc54fb52.jpg' },
+        { name: 'ข้าวผัดไข่', price: 30, img: 'https://img.wongnai.com/p/1920x0/2019/12/19/d5537700a7274ac09964b6a51dd0a9f6.jpg'},
+        { name: 'ข้าวผัดทะเล', price: 60, img: 'https://img.wongnai.com/p/1920x0/2020/03/06/d34e8f779cd94f18ac43aeab11a5239f.jpg'},
+        { name: 'ข้าวไข่เจียวธรรมดา', price: 20, img: 'https://many-menu.com/wp-content/uploads/2020/10/1442885991-imagejpeg-o.jpg' },
+        { name: 'กระเพราเนื้อ', price: 50, img: 'https://api2.krua.co/wp-content/uploads/2023/12/RT1811_Gallery_-02.jpg' },
+        { name: 'กระเพราทะเล', price: 50, img: 'https://s359.kapook.com/pagebuilder/77e69f79-d857-4153-9052-b8a20d7259d8.jpg'},
+        { name: 'ผัดพริกแกงหมู', price: 40, img: 'https://img-global.cpcdn.com/recipes/0020cc45253135f4/240x320cq80/photo.jpg' },
+        { name: 'ผัดพริกแกงทะเล', price: 50, img: 'https://i.ytimg.com/vi/-PpReCsFVu0/maxresdefault.jpg'},
+        { name: 'หมูกระเทียม', price: 40, img: 'https://media.lul.la/wp-content/uploads/2022/11/15164454/rice-with-garlic-and-pepper-pork-featured-1155x629.jpg'},
+        { name: 'กุ้งกระเทียม', price: 60, img: 'https://storage.ftiebusiness.com/c1/Product_47949_264225760_fullsize.jpg'},
+        { name: 'หมึกกระเทียม', price: 60, img: 'https://i.ytimg.com/vi/KcSP6c8osnY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAuthhrUtLDonaenBidn8osvHis3w'},
+        { name: 'ข้าวไข่เจียวหมูสับ', price: 40, img: 'https://img.kapook.com/u/2016/wanwanat/0_edit/385698979x.jpg'},
+        { name: 'ต้มแซ่บกระดูกอ่อน', price: 50, img: 'https://www.unileverfoodsolutions.co.th/dam/global-ufs/mcos/SEA/calcmenu/recipes/TH-recipes/soups/%E0%B8%95%E0%B9%89%E0%B8%A1%E0%B9%81%E0%B8%8B%E0%B9%88%E0%B8%9A%E0%B8%81%E0%B8%A3%E0%B8%B0%E0%B8%94%E0%B8%B9%E0%B8%81%E0%B8%AB%E0%B8%A1%E0%B8%B9/%E0%B8%95%E0%B9%89%E0%B8%A1%E0%B9%81%E0%B8%8B%E0%B9%88%E0%B8%9A%E0%B8%81%E0%B8%A3%E0%B8%B0%E0%B8%94%E0%B8%B9%E0%B8%81%E0%B8%AB%E0%B8%A1%E0%B8%B9_header.jpg'},
+        { name: 'ต้มยำทะเล', price: 60, img: 'https://i.ytimg.com/vi/gjm1toMrY8g/maxresdefault.jpg'},
+        { name: 'ลาบหมู', price: 40, img: 'https://api2.krua.co/wp-content/uploads/2020/06/SEOForm_RT0168_1200x630.jpg'},
+      ],
+      '🥗 ส้มตำ': [
+        { name: 'ตำไทย', price: 40, img: 'https://www.unileverfoodsolutions.co.th/th/chef-inspiration/simple-tips-for-great-flavour/somtum-green-papaya-salad-recipes/jcr:content/parsys/content-aside-footer/tipsandadvice/image.img.jpg/1695118621402.jpg' },
+        { name: 'ตำปูปลาร้า', price: 30, img: 'https://yalamarketplace.com/upload/1636853127811.jpg' },
+        { name: 'ตำหอยดอง', price: 40, img: 'https://i.ytimg.com/vi/S35bKTIjG_I/maxresdefault.jpg'},
+        { name: 'ตำซั่ว', price: 40, img: 'https://www.1376delivery.com/productimages/3396_.jpg'},
+        { name: 'ตำแตง', price: 30, img: 'https://img.wongnai.com/p/1920x0/2019/01/18/e664a5c04f2f4886b6c7b35b67c2693e.jpg'},
+        { name: 'ตำป่า', price: 40, img: 'https://yalamarketplace.com/upload/1618115066422.jpg'},
+        { name: 'ตำไทยไข่เค็ม', price: 50, img: 'https://siriranya.wordpress.com/wp-content/uploads/2016/08/4083707.jpg'},
+        { name: 'ตำข้าวโพด', price: 40, img: 'https://www.sgethai.com/wp-content/uploads/2023/05/AnyConv.com__88-2.webp'},
+        { name: 'ตำข้าวโพดไข่เค็ม', price: 50, img: 'https://www.sgethai.com/wp-content/uploads/2023/05/AnyConv.com__5-99.webp'}  
+      ],
+      '🥣 ยำ': [
+        { name: 'ยำวุ้นเส้นทะเล', price: 50, img: 'https://s.isanook.com/wo/0/ud/48/242681/y.jpg?ip/crop/w670h402/q80/jpg' },
+        { name: 'ยำวุ้นเส้นหมูสับ', price: 40, img: 'https://pbs.twimg.com/media/E11mVtRVIAMgOcB?format=jpg&name=large'},
+        { name: 'ยำรวมทะเล', price: 50, img: 'https://longdan.co.uk/cdn/shop/articles/spicy-mixed-seafood-salad-with-thai-food-ingredients_1200x.jpg?v=1700554699'},
+        { name: 'ยำมาม่าหมูสับ', price: 40, img: 'https://i.ytimg.com/vi/suBZbLNz4u0/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCaJJfpAQlEzXYye0j4mCedn5G40w'},
+        { name: 'ยำมาม่าทะเล', price: 50, img: 'https://s359.kapook.com/pagebuilder/dd8fa42d-01a2-48c1-b146-a0770bf7d499.jpg'},
+      ],
+      '🥣 หมุกระทะ': [
+        { name: 'หมูกระทะชุดเล็ก', price: 360, img: 'https://images.hungryhub.com/uploads/restaurants/5192/photos/150801/RackMultipart20241121-136-14uqttq.jpg' },
+        { name: 'หมูกระทะชุดใหญ่', price: 560, img: 'https://images.hungryhub.com/uploads/restaurants/5192/photos/150801/RackMultipart20241121-136-14uqttq.jpg'}
+      ]
+    };
+
+    const order = [];
+
+    function renderMenu() {
+      const menuDiv = document.getElementById('menu');
+      for (const category in menu) {
+        const group = document.createElement('div');
+        group.className = 'menu-group';
+        group.innerHTML = `<h2>${category}</h2>`;
+
+        menu[category].forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'item-card';
+
+          card.innerHTML = `
+            <img src="${item.img}" alt="${item.name}">
+            <div class="item-info">
+              <p>${item.name}</p>
+              <p><strong>${item.price + 40}฿</strong></p>
+              <button class="item-btn">สั่ง</button>
+            </div>
+          `;
+
+          card.querySelector('.item-btn').onclick = () => addToOrder(item.name, item.price + 40);
+          group.appendChild(card);
+        });
+
+        menuDiv.appendChild(group);
+      }
+    }
+
+    function addToOrder(name, price) {
+      const existing = order.find(i => i.name === name);
+      if (existing) {
+        existing.qty++;
+      } else {
+        order.push({ name, price, qty: 1 });
+      }
+      renderOrder();
+    }
+
+    function renderOrder() {
+      const list = document.getElementById('order-list');
+      list.innerHTML = '';
+      let total = 0;
+      order.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name} x ${item.qty} = ${item.price * item.qty}฿`;
+        list.appendChild(li);
+        total += item.price * item.qty;
+      });
+      document.getElementById('total').textContent = total;
+      console.log("📦 คำสั่งซื้อ:", order);
+    }
+
+    // ✅ เรียกใช้งาน
+    renderMenu();
+  </script>
+</body>
+</html>
